@@ -51,8 +51,21 @@ export async function loadHistoricalCandles(
       `Loading ${HISTORICAL_CANDLES} historical candles for ${symbol}...`
     );
 
+    /*
+    =========================================================
+    BINANCE MARKET DATA API
+    =========================================================
+
+    Using data-api.binance.vision instead of
+    api.binance.com.
+
+    This endpoint is specifically provided for
+    public market data.
+    =========================================================
+    */
+
     const url =
-      `https://api.binance.com/api/v3/klines` +
+      `https://data-api.binance.vision/api/v3/klines` +
       `?symbol=${symbol}` +
       `&interval=5m` +
       `&limit=${HISTORICAL_CANDLES}`;
@@ -61,7 +74,7 @@ export async function loadHistoricalCandles(
 
     if (!response.ok) {
       throw new Error(
-        `Binance API returned ${response.status}`
+        `Binance Market Data API returned ${response.status}`
       );
     }
 
@@ -75,11 +88,17 @@ export async function loadHistoricalCandles(
 
     const candles = data.map((item) => ({
       time: Math.floor(item[0] / 1000),
+
       open: Number(item[1]),
+
       high: Number(item[2]),
+
       low: Number(item[3]),
+
       close: Number(item[4]),
+
       volume: Number(item[5]),
+
       closed: true
     }));
 
@@ -95,7 +114,9 @@ export async function loadHistoricalCandles(
     );
 
     return candles;
+
   } catch (error) {
+
     console.error(
       `Failed to load historical candles for ${symbol}:`,
       error.message
