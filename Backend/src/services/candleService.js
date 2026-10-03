@@ -1,24 +1,40 @@
 import { marketState } from "../state/marketState.js";
 
 const MAX_CANDLES = 1000;
+const HISTORICAL_CANDLES = 100;
 
-/*
-=========================================================
-ADD / UPDATE LIVE CANDLE
-=========================================================
+export function addCandle(marketKey, candle) {
+  const state = marketState[marketKey];
 
-Candles now come from Binance WebSocket.
+  if (!state) {
+    console.error(`Market state not found: ${marketKey}`);
+    return;
+  }
 
-If the current candle has the same timestamp,
-we update it.
+  if (!candle) {
+    return;
+  }
 
-If it is a new candle, we push it.
-=========================================================
-*/
+  const candles = state.candles;
 
-export function addCandle(
+  const lastCandle = candles[candles.length - 1];
+
+  if (lastCandle && lastCandle.time === candle.time) {
+    candles[candles.length - 1] = candle;
+  } else {
+    candles.push(candle);
+  }
+
+  if (candles.length > MAX_CANDLES) {
+    candles.shift();
+  }
+
+  state.currentPrice = Number(candle.close);
+}
+
+export async function loadHistoricalCandles(
   marketKey,
-  candle
+  symbol
 ) {
   const state = marketState[marketKey];
 
@@ -27,99 +43,64 @@ export function addCandle(
       `Market state not found: ${marketKey}`
     );
 
-    return;
+    return [];
   }
 
-  const candles = state.candles;
+  try {
+    console.log(
+      `Loading ${HISTORICAL_CANDLES} historical candles for ${symbol}...`
+    );
 
-  if (!candle) {
-    return;
+    const url =
+      `https://api.binance.com/api/v3/klines` +
+      `?symbol=${symbol}` +
+      `&interval=5m` +
+      `&limit=${HISTORICAL_CANDLES}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(
+        `Binance API returned ${response.status}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data)) {
+      throw new Error(
+        "Invalid Binance candle response"
+      );
+    }
+
+    const candles = data.map((item) => ({
+      time: Math.floor(item[0] / 1000),
+      open: Number(item[1]),
+      high: Number(item[2]),
+      low: Number(item[3]),
+      close: Number(item[4]),
+      volume: Number(item[5]),
+      closed: true
+    }));
+
+    state.candles = candles;
+
+    if (candles.length > 0) {
+      state.currentPrice =
+        candles[candles.length - 1].close;
+    }
+
+    console.log(
+      `${symbol} | Loaded ${candles.length} historical candles`
+    );
+
+    return candles;
+  } catch (error) {
+    console.error(
+      `Failed to load historical candles for ${symbol}:`,
+      error.message
+    );
+
+    return [];
   }
-
-  const lastCandle =
-    candles[candles.length - 1];
-
-
-  /*
-  -------------------------------------------------------
-  UPDATE EXISTING CANDLE
-  -------------------------------------------------------
-  */
-
-  if (
-    lastCandle &&
-    lastCandle.time === candle.time
-  ) {
-    candles[candles.length - 1] = candle;
-  }
-
-
-  /*
-  -------------------------------------------------------
-  ADD NEW CANDLE
-  -------------------------------------------------------
-  */
-
-  else {
-    candles.push(candle);
-  }
-
-
-  /*
-  -------------------------------------------------------
-  KEEP MAXIMUM 1000 CANDLES
-  -------------------------------------------------------
-  */
-
-  if (
-    candles.length > MAX_CANDLES
-  ) {
-    candles.shift();
-  }
-
-
-  /*
-  -------------------------------------------------------
-  UPDATE CURRENT PRICE
-  -------------------------------------------------------
-  */
-
-  state.currentPrice =
-    Number(candle.close);
-}
-
-
-/*
-=========================================================
-GET CANDLE HISTORY
-=========================================================
-
-IMPORTANT:
-
-Binance REST historical API has been completely removed.
-
-Previously this function called:
-
-https://data-api.binance.vision/api/v3/klines
-
-That could produce:
-
-HTTP 418
--1003
-Too much request weight / IP restriction
-
-We no longer make that request.
-
-Live candles will be collected from:
-
-Binance WebSocket
-        ↓
-addCandle()
-        ↓
-marketState
-=========================================================
-*/
-
-export async function loadHistoricalCandles() {
-  return [];
 }
