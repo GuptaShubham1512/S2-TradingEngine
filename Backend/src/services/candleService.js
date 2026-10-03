@@ -1,3 +1,36 @@
+import { marketState } from "../state/marketState.js";
+
+const MAX_CANDLES = 1000;
+
+export function addCandle(
+  marketKey,
+  candle
+) {
+  const state = marketState[marketKey];
+
+  if (!state) return;
+
+  const candles = state.candles;
+
+  const lastCandle =
+    candles[candles.length - 1];
+
+  if (
+    lastCandle &&
+    lastCandle.time === candle.time
+  ) {
+    candles[candles.length - 1] = candle;
+  } else {
+    candles.push(candle);
+  }
+
+  if (candles.length > MAX_CANDLES) {
+    candles.shift();
+  }
+
+  state.currentPrice = candle.close;
+}
+
 export async function loadHistoricalCandles(
   market
 ) {
