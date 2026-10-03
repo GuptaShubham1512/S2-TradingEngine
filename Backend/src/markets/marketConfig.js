@@ -13,12 +13,7 @@ export const markets = {
     shortName: "ETH"
   },
 
-  GOLD: {
-    key: "GOLD",
-    symbol: "PAXGUSDT",
-    name: "Gold",
-    shortName: "GOLD"
-  }
+  
 };
 
 export const getMarketByKey = (key) => {

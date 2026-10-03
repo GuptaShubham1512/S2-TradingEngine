@@ -16,15 +16,16 @@ export function addCandle(marketKey, candle) {
   }
 
   const candles = state.candles;
-
   const lastCandle = candles[candles.length - 1];
 
+  // Update existing candle
   if (lastCandle && lastCandle.time === candle.time) {
     candles[candles.length - 1] = candle;
   } else {
     candles.push(candle);
   }
 
+  // Keep only latest candles
   if (candles.length > MAX_CANDLES) {
     candles.shift();
   }
@@ -39,68 +40,70 @@ export async function loadHistoricalCandles(
   const state = marketState[marketKey];
 
   if (!state) {
-    console.error(
-      `Market state not found: ${marketKey}`
-    );
-
+    console.error(`Market state not found: ${marketKey}`);
     return [];
   }
 
   try {
     console.log(
-      `Loading ${HISTORICAL_CANDLES} historical candles for ${symbol}...`
+      `Loading ${HISTORICAL_CANDLES} historical candles from Bybit for ${symbol}...`
     );
 
-    /*
-    =========================================================
-    BINANCE MARKET DATA API
-    =========================================================
-
-    Using data-api.binance.vision instead of
-    api.binance.com.
-
-    This endpoint is specifically provided for
-    public market data.
-    =========================================================
-    */
-
     const url =
-      `https://data-api.binance.vision/api/v3/klines` +
-      `?symbol=${symbol}` +
-      `&interval=5m` +
+      `https://api.bybit.com/v5/market/kline` +
+      `?category=linear` +
+      `&symbol=${symbol}` +
+      `&interval=5` +
       `&limit=${HISTORICAL_CANDLES}`;
 
     const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error(
-        `Binance Market Data API returned ${response.status}`
+        `Bybit API returned HTTP ${response.status}`
       );
     }
 
     const data = await response.json();
 
-    if (!Array.isArray(data)) {
+    if (data.retCode !== 0) {
       throw new Error(
-        "Invalid Binance candle response"
+        `Bybit API error: ${data.retMsg || "Unknown error"}`
       );
     }
 
-    const candles = data.map((item) => ({
-      time: Math.floor(item[0] / 1000),
+    const list = data?.result?.list;
 
-      open: Number(item[1]),
+    if (!Array.isArray(list)) {
+      throw new Error("Invalid Bybit candle response");
+    }
 
-      high: Number(item[2]),
+    /*
+      Bybit returns candles in reverse chronological order.
 
-      low: Number(item[3]),
+      Example:
+      newest
+      ...
+      oldest
 
-      close: Number(item[4]),
+      We reverse them so our application stores:
 
-      volume: Number(item[5]),
+      oldest
+      ...
+      newest
+    */
 
-      closed: true
-    }));
+    const candles = list
+      .map((item) => ({
+        time: Math.floor(Number(item[0]) / 1000),
+        open: Number(item[1]),
+        high: Number(item[2]),
+        low: Number(item[3]),
+        close: Number(item[4]),
+        volume: Number(item[5]),
+        closed: true
+      }))
+      .reverse();
 
     state.candles = candles;
 
@@ -110,15 +113,13 @@ export async function loadHistoricalCandles(
     }
 
     console.log(
-      `${symbol} | Loaded ${candles.length} historical candles`
+      `${symbol} | Bybit loaded ${candles.length} historical candles`
     );
 
     return candles;
-
   } catch (error) {
-
     console.error(
-      `Failed to load historical candles for ${symbol}:`,
+      `Failed to load Bybit historical candles for ${symbol}:`,
       error.message
     );
 
