@@ -1,6 +1,7 @@
 import { marketState } from "../state/marketState.js";
 
-const MAX_CANDLES = 500;
+const MAX_CANDLES = 3000;
+const CANDLES_PER_REQUEST = 1000;
 
 export function addCandle(
   marketKey,
@@ -34,29 +35,60 @@ export function addCandle(
 export async function loadHistoricalCandles(
   market
 ) {
-  const url =
-    `https://api.binance.com/api/v3/klines` +
-    `?symbol=${market.symbol}` +
-    `&interval=5m` +
-    `&limit=200`;
+  const allCandles = [];
 
-  const response = await fetch(url);
+  let endTime = Date.now();
 
-  if (!response.ok) {
-    throw new Error(
-      `Failed to load ${market.symbol} candles`
-    );
+  for (let request = 0; request < 3; request++) {
+    const url =
+      `https://data-api.binance.vision/api/v3/klines` +
+      `?symbol=${market.symbol}` +
+      `&interval=5m` +
+      `&limit=${CANDLES_PER_REQUEST}` +
+      `&endTime=${endTime}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      throw new Error(
+        `Failed to load ${market.symbol} candles: ` +
+        `${response.status} ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+
+    if (!data.length) {
+      break;
+    }
+
+    const candles = data.map((item) => ({
+      time: Math.floor(item[0] / 1000),
+      open: Number(item[1]),
+      high: Number(item[2]),
+      low: Number(item[3]),
+      close: Number(item[4]),
+      volume: Number(item[5]),
+      closed: true
+    }));
+
+    allCandles.unshift(...candles);
+
+    // Move backwards before the oldest candle
+    endTime = data[0][0] - 1;
   }
 
-  const data = await response.json();
+  // Remove duplicate candles and sort oldest → newest
+  const uniqueCandles = Array.from(
+    new Map(
+      allCandles.map((candle) => [
+        candle.time,
+        candle
+      ])
+    ).values()
+  ).sort((a, b) => a.time - b.time);
 
-  return data.map((item) => ({
-    time: Math.floor(item[0] / 1000),
-    open: Number(item[1]),
-    high: Number(item[2]),
-    low: Number(item[3]),
-    close: Number(item[4]),
-    volume: Number(item[5]),
-    closed: true
-  }));
+  return uniqueCandles.slice(-MAX_CANDLES);
 }
