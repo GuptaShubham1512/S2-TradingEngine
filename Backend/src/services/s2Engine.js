@@ -67,13 +67,13 @@ export function calculateS2({
   */
 
   if (price > vwap) {
-    score += 3;
+    score += 2;
 
     reasons.push(
       "Price is above VWAP"
     );
   } else {
-    score -= 3;
+    score -= 2;
 
     reasons.push(
       "Price is below VWAP"

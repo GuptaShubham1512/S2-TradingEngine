@@ -452,8 +452,7 @@ function App() {
                     className="hero-badge-dot"
                   ></span>
 
-                  LIVE MARKET INTELLIGENCE
-
+                  S² TRADING INTELLIGENCE
                 </div>
 
                 <p className="eyebrow">
