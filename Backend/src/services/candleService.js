@@ -2,64 +2,124 @@ import { marketState } from "../state/marketState.js";
 
 const MAX_CANDLES = 1000;
 
+/*
+=========================================================
+ADD / UPDATE LIVE CANDLE
+=========================================================
+
+Candles now come from Binance WebSocket.
+
+If the current candle has the same timestamp,
+we update it.
+
+If it is a new candle, we push it.
+=========================================================
+*/
+
 export function addCandle(
   marketKey,
   candle
 ) {
   const state = marketState[marketKey];
 
-  if (!state) return;
+  if (!state) {
+    console.error(
+      `Market state not found: ${marketKey}`
+    );
+
+    return;
+  }
 
   const candles = state.candles;
 
+  if (!candle) {
+    return;
+  }
+
   const lastCandle =
     candles[candles.length - 1];
+
+
+  /*
+  -------------------------------------------------------
+  UPDATE EXISTING CANDLE
+  -------------------------------------------------------
+  */
 
   if (
     lastCandle &&
     lastCandle.time === candle.time
   ) {
     candles[candles.length - 1] = candle;
-  } else {
+  }
+
+
+  /*
+  -------------------------------------------------------
+  ADD NEW CANDLE
+  -------------------------------------------------------
+  */
+
+  else {
     candles.push(candle);
   }
 
-  if (candles.length > MAX_CANDLES) {
+
+  /*
+  -------------------------------------------------------
+  KEEP MAXIMUM 1000 CANDLES
+  -------------------------------------------------------
+  */
+
+  if (
+    candles.length > MAX_CANDLES
+  ) {
     candles.shift();
   }
 
-  state.currentPrice = candle.close;
+
+  /*
+  -------------------------------------------------------
+  UPDATE CURRENT PRICE
+  -------------------------------------------------------
+  */
+
+  state.currentPrice =
+    Number(candle.close);
 }
 
-export async function loadHistoricalCandles(
-  market
-) {
-  const url =
-    `https://data-api.binance.vision/api/v3/klines` +
-    `?symbol=${market.symbol}` +
-    `&interval=5m` +
-    `&limit=1000`;
 
-  const response = await fetch(url);
+/*
+=========================================================
+GET CANDLE HISTORY
+=========================================================
 
-  if (!response.ok) {
-    const errorText = await response.text();
+IMPORTANT:
 
-    throw new Error(
-      `Failed to load ${market.symbol} candles: ` +
-      `${response.status} ${errorText}`
-    );
-  }
+Binance REST historical API has been completely removed.
 
-  const data = await response.json();
+Previously this function called:
 
-  return data.map((item) => ({
-    time: Math.floor(item[0] / 1000),
-    open: Number(item[1]),
-    high: Number(item[2]),
-    low: Number(item[3]),
-    close: Number(item[4]),
-    volume: Number(item[5]),
-    closed: true
-  }));
+https://data-api.binance.vision/api/v3/klines
+
+That could produce:
+
+HTTP 418
+-1003
+Too much request weight / IP restriction
+
+We no longer make that request.
+
+Live candles will be collected from:
+
+Binance WebSocket
+        ↓
+addCandle()
+        ↓
+marketState
+=========================================================
+*/
+
+export async function loadHistoricalCandles() {
+  return [];
 }

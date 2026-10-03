@@ -9,20 +9,8 @@ import {
 } from "../services/candleService.js";
 
 import {
-  calculateEMA
-} from "../services/emaService.js";
-
-import {
-  calculateVWAP
-} from "../services/vwapService.js";
-
-import {
-  calculateRSI
-} from "../services/rsiService.js";
-
-import {
-  calculateS2
-} from "../services/s2Engine.js";
+  updateMarketIndicators
+} from "../services/marketInitializer.js";
 
 import {
   marketState
@@ -32,6 +20,13 @@ import {
   broadcastMarket
 } from "./clientSocket.js";
 
+
+/*
+=========================================================
+BINANCE WEBSOCKET CONFIGURATION
+=========================================================
+*/
+
 const streams =
   "btcusdt@kline_5m/" +
   "ethusdt@kline_5m/" +
@@ -40,134 +35,311 @@ const streams =
 const BINANCE_URL =
   `wss://stream.binance.com:9443/stream?streams=${streams}`;
 
+
 let socket;
 
+
+/*
+=========================================================
+START BINANCE WEBSOCKET
+=========================================================
+*/
+
 export function startBinanceSocket() {
-  socket = new WebSocket(BINANCE_URL);
+
+  console.log(
+    "Starting Binance WebSocket..."
+  );
+
+  socket = new WebSocket(
+    BINANCE_URL
+  );
+
+
+  /*
+  -------------------------------------------------------
+  CONNECTION OPEN
+  -------------------------------------------------------
+  */
 
   socket.on("open", () => {
+
     console.log(
       "Connected to Binance WebSocket"
     );
+
+    console.log(
+      "Listening for 5-minute candles:"
+    );
+
+    console.log(
+      "BTCUSDT"
+    );
+
+    console.log(
+      "ETHUSDT"
+    );
+
+    console.log(
+      "PAXGUSDT"
+    );
   });
 
-  socket.on("message", (rawData) => {
-    try {
-      const message =
-        JSON.parse(rawData.toString());
 
-      const kline =
-        message?.data?.k;
+  /*
+  -------------------------------------------------------
+  RECEIVE BINANCE MESSAGE
+  -------------------------------------------------------
+  */
 
-      if (!kline) return;
+  socket.on(
+    "message",
+    (rawData) => {
 
-      const market =
-        getMarketBySymbol(
-          kline.s
+      try {
+
+        const message =
+          JSON.parse(
+            rawData.toString()
+          );
+
+
+        /*
+        ---------------------------------------------------
+        GET KLINE DATA
+        ---------------------------------------------------
+        */
+
+        const kline =
+          message?.data?.k;
+
+        if (!kline) {
+          return;
+        }
+
+
+        /*
+        ---------------------------------------------------
+        FIND MARKET CONFIG
+        ---------------------------------------------------
+        */
+
+        const market =
+          getMarketBySymbol(
+            kline.s
+          );
+
+        if (!market) {
+
+          console.warn(
+            `Unknown Binance symbol: ${kline.s}`
+          );
+
+          return;
+        }
+
+
+        /*
+        ---------------------------------------------------
+        CREATE INTERNAL CANDLE
+        ---------------------------------------------------
+        */
+
+        const candle = {
+
+          time:
+            Math.floor(
+              kline.t / 1000
+            ),
+
+          open:
+            Number(kline.o),
+
+          high:
+            Number(kline.h),
+
+          low:
+            Number(kline.l),
+
+          close:
+            Number(kline.c),
+
+          volume:
+            Number(kline.v),
+
+          closed:
+            Boolean(kline.x)
+        };
+
+
+        /*
+        ---------------------------------------------------
+        UPDATE CANDLE STATE
+        ---------------------------------------------------
+        */
+
+        addCandle(
+          market.key,
+          candle
         );
 
-      if (!market) return;
 
-      const candle = {
-        time: Math.floor(
-          kline.t / 1000
-        ),
+        /*
+        ---------------------------------------------------
+        UPDATE EMA / VWAP / RSI / S²
+        ---------------------------------------------------
+        */
 
-        open: Number(kline.o),
-        high: Number(kline.h),
-        low: Number(kline.l),
-        close: Number(kline.c),
-        volume: Number(kline.v),
+        updateMarketIndicators(
+          market.key
+        );
 
-        closed: Boolean(kline.x)
-      };
 
-      addCandle(
-        market.key,
-        candle
+        /*
+        ---------------------------------------------------
+        BROADCAST TO FRONTEND
+        ---------------------------------------------------
+        */
+
+        broadcastMarket(
+          market.key
+        );
+
+
+        /*
+        ---------------------------------------------------
+        DEBUG OUTPUT
+        ---------------------------------------------------
+        */
+
+        const state =
+          marketState[
+            market.key
+          ];
+
+        console.log(
+          `${market.symbol} | ` +
+          `Price: ${state.currentPrice} | ` +
+          `Candles: ${state.candles.length} | ` +
+          `EMA9: ${formatValue(state.indicators.ema9)} | ` +
+          `EMA20: ${formatValue(state.indicators.ema20)} | ` +
+          `VWAP: ${formatValue(state.indicators.vwap)} | ` +
+          `RSI14: ${formatValue(state.indicators.rsi14)} | ` +
+          `S²: ${getSignalAction(state.signal)}`
+        );
+
+      } catch (error) {
+
+        console.error(
+          "Binance message error:",
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+
+  /*
+  -------------------------------------------------------
+  SOCKET CLOSED
+  -------------------------------------------------------
+  */
+
+  socket.on(
+    "close",
+    () => {
+
+      console.log(
+        "Binance WebSocket closed."
       );
 
-      updateIndicators(
-        market.key
+      console.log(
+        "Reconnecting in 3 seconds..."
       );
 
-      broadcastMarket(
-        market.key
+      setTimeout(
+        startBinanceSocket,
+        3000
       );
-    } catch (error) {
+
+    }
+  );
+
+
+  /*
+  -------------------------------------------------------
+  SOCKET ERROR
+  -------------------------------------------------------
+  */
+
+  socket.on(
+    "error",
+    (error) => {
+
       console.error(
-        "Binance message error:",
+        "Binance WebSocket error:",
         error.message
       );
+
     }
-  });
+  );
 
-  socket.on("close", () => {
-    console.log(
-      "Binance socket closed. Reconnecting..."
-    );
-
-    setTimeout(
-      startBinanceSocket,
-      3000
-    );
-  });
-
-  socket.on("error", (error) => {
-    console.error(
-      "Binance WebSocket error:",
-      error.message
-    );
-  });
 }
 
-function updateIndicators(
-  marketKey
-) {
-  const state =
-    marketState[marketKey];
 
-  const candles =
-    state.candles;
+/*
+=========================================================
+HELPER — FORMAT INDICATOR VALUES
+=========================================================
+*/
 
-  const ema9 =
-    calculateEMA(
-      candles,
-      9
-    );
+function formatValue(value) {
 
-  const ema20 =
-    calculateEMA(
-      candles,
-      20
-    );
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return "N/A";
+  }
 
-  const vwap =
-    calculateVWAP(
-      candles
-    );
+  if (
+    typeof value !== "number"
+  ) {
+    return value;
+  }
 
-  const rsi14 =
-    calculateRSI(
-      candles,
-      14
-    );
+  if (
+    Number.isNaN(value)
+  ) {
+    return "N/A";
+  }
 
-  const signal =
-    calculateS2({
-      price: state.currentPrice,
-      ema9,
-      ema20,
-      vwap,
-      rsi14
-    });
+  return value.toFixed(2);
+}
 
-  state.indicators = {
-    ema9,
-    ema20,
-    vwap,
-    rsi14
-  };
 
-  state.signal = signal;
+/*
+=========================================================
+HELPER — GET S² ACTION
+=========================================================
+*/
+
+function getSignalAction(signal) {
+
+  if (!signal) {
+    return "WAIT";
+  }
+
+  if (
+    typeof signal === "string"
+  ) {
+    return signal;
+  }
+
+  return (
+    signal.action ||
+    "WAIT"
+  );
 }
