@@ -1,0 +1,2170 @@
+
+/* =========================================================
+   S² TRADING ENGINE
+   PREMIUM DARK GLASS TERMINAL
+========================================================= */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: #020305;
+  color: #f4f7fa;
+
+  overflow-x: hidden;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* =========================================================
+   ROOT LAYERS
+========================================================= */
+
+#root {
+  min-height: 100vh;
+}
+
+.app-wrapper {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% -20%,
+      rgba(42, 65, 95, 0.12),
+      transparent 42%
+    ),
+    #020305;
+}
+
+.app-content {
+  position: relative;
+  z-index: 5;
+}
+
+/* =========================================================
+   ANIMATED BACKGROUND
+========================================================= */
+
+.animated-background {
+  position: fixed;
+  inset: 0;
+
+  z-index: 0;
+
+  overflow: hidden;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at 20% 15%,
+      rgba(45, 125, 255, 0.045),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 80% 35%,
+      rgba(155, 90, 255, 0.035),
+      transparent 27%
+    ),
+    radial-gradient(
+      circle at 50% 100%,
+      rgba(0, 210, 255, 0.025),
+      transparent 30%
+    );
+}
+
+/* =========================================================
+   BACKGROUND GRID
+========================================================= */
+
+.background-grid {
+  position: absolute;
+  inset: -10%;
+
+  opacity: 0.16;
+
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.018) 1px,
+      transparent 1px
+    );
+
+  background-size: 70px 70px;
+
+  transform: perspective(700px) rotateX(60deg) scale(1.5);
+
+  transform-origin: center bottom;
+
+  -webkit-mask-image: linear-gradient(
+      to bottom,
+      transparent 5%,
+      black 45%,
+      transparent 100%
+    );
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 5%,
+      black 45%,
+      transparent 100%
+    );
+
+  animation: gridMove 25s linear infinite;
+}
+
+/* =========================================================
+   NEBULA LIGHTS
+========================================================= */
+
+.nebula {
+  position: absolute;
+
+  border-radius: 50%;
+
+  filter: blur(80px);
+
+  opacity: 0.35;
+
+  mix-blend-mode: screen;
+
+  animation:
+    nebulaFloat 18s ease-in-out infinite alternate;
+}
+
+.nebula-1 {
+  width: 380px;
+  height: 380px;
+
+  left: -120px;
+  top: 8%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0, 153, 255, 0.13),
+      transparent 70%
+    );
+}
+
+.nebula-2 {
+  width: 450px;
+  height: 450px;
+
+  right: -150px;
+  top: 28%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(145, 80, 255, 0.1),
+      transparent 70%
+    );
+
+  animation-delay: -7s;
+}
+
+.nebula-3 {
+  width: 400px;
+  height: 400px;
+
+  left: 35%;
+  bottom: -230px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(0, 205, 255, 0.08),
+      transparent 70%
+    );
+
+  animation-delay: -12s;
+}
+
+/* =========================================================
+   STAR FIELD
+========================================================= */
+
+.stars {
+  position: absolute;
+  inset: 0;
+
+  background-repeat: repeat;
+
+  animation: starDrift linear infinite;
+
+  opacity: 0.4;
+}
+
+.stars-small {
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.65) 0.7px,
+      transparent 1px
+    );
+
+  background-size: 100px 100px;
+
+  animation-duration: 45s;
+}
+
+.stars-medium {
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(120, 190, 255, 0.4) 0.8px,
+      transparent 1.2px
+    );
+
+  background-size: 170px 170px;
+
+  background-position: 40px 80px;
+
+  animation-duration: 65s;
+}
+
+.stars-large {
+  background-image:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.3) 1px,
+      transparent 1.6px
+    );
+
+  background-size: 260px 260px;
+
+  background-position: 100px 30px;
+
+  animation-duration: 90s;
+}
+
+/* =========================================================
+   SHOOTING STARS
+========================================================= */
+
+.shooting-star {
+  position: absolute;
+
+  width: 90px;
+  height: 1px;
+
+  opacity: 0;
+
+  transform: rotate(-35deg);
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(150, 210, 255, 0.7),
+      transparent
+    );
+
+  filter:
+    drop-shadow(
+      0 0 5px rgba(100, 190, 255, 0.5)
+    );
+}
+
+.shooting-star-1 {
+  top: 18%;
+  left: 15%;
+
+  animation:
+    shootingStar 8s 2s linear infinite;
+}
+
+.shooting-star-2 {
+  top: 48%;
+  left: 70%;
+
+  animation:
+    shootingStar 11s 6s linear infinite;
+}
+
+.shooting-star-3 {
+  top: 75%;
+  left: 30%;
+
+  animation:
+    shootingStar 13s 9s linear infinite;
+}
+
+/* =========================================================
+   FLOATING CRYSTALS
+========================================================= */
+
+.crystal {
+  position: absolute;
+
+  width: 45px;
+  height: 45px;
+
+  border:
+    1px solid rgba(150, 200, 255, 0.08);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.035),
+      rgba(70, 140, 255, 0.012)
+    );
+
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+
+  transform:
+    rotate(45deg);
+
+  box-shadow:
+    inset 0 0 20px rgba(255, 255, 255, 0.015),
+    0 0 25px rgba(50, 150, 255, 0.025);
+
+  animation:
+    crystalMove 12s ease-in-out infinite;
+}
+
+.crystal span {
+  position: absolute;
+
+  inset: 7px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.04);
+}
+
+.crystal-1 {
+  left: 7%;
+  top: 25%;
+
+  transform: rotate(45deg) scale(0.7);
+}
+
+.crystal-2 {
+  left: 83%;
+  top: 18%;
+
+  transform: rotate(45deg) scale(0.5);
+
+  animation-delay: -4s;
+}
+
+.crystal-3 {
+  left: 92%;
+  top: 68%;
+
+  transform: rotate(45deg) scale(0.8);
+
+  animation-delay: -7s;
+}
+
+.crystal-4 {
+  left: 12%;
+  top: 72%;
+
+  transform: rotate(45deg) scale(0.45);
+
+  animation-delay: -2s;
+}
+
+.crystal-5 {
+  left: 52%;
+  top: 12%;
+
+  transform: rotate(45deg) scale(0.35);
+
+  animation-delay: -8s;
+}
+
+.crystal-6 {
+  left: 45%;
+  top: 85%;
+
+  transform: rotate(45deg) scale(0.55);
+
+  animation-delay: -5s;
+}
+
+/* =========================================================
+   TRADING SYMBOLS
+========================================================= */
+
+.market-symbol {
+  position: absolute;
+
+  color: rgba(150, 185, 220, 0.045);
+
+  font-weight: 600;
+
+  letter-spacing: 2px;
+
+  -webkit-user-select: none;
+  user-select: none;
+
+  filter:
+    blur(0.2px);
+
+  animation:
+    symbolFloat 10s ease-in-out infinite;
+}
+
+.symbol-1 {
+  left: 5%;
+  top: 40%;
+  font-size: 40px;
+}
+
+.symbol-2 {
+  right: 6%;
+  top: 52%;
+  font-size: 36px;
+  animation-delay: -3s;
+}
+
+.symbol-3 {
+  left: 22%;
+  top: 75%;
+  font-size: 26px;
+  animation-delay: -5s;
+}
+
+.symbol-4 {
+  right: 20%;
+  top: 22%;
+  font-size: 32px;
+  animation-delay: -7s;
+}
+
+.symbol-5 {
+  left: 48%;
+  top: 35%;
+  font-size: 24px;
+  animation-delay: -2s;
+}
+
+.symbol-6 {
+  left: 7%;
+  top: 60%;
+  font-size: 11px;
+}
+
+.symbol-7 {
+  right: 12%;
+  top: 78%;
+  font-size: 11px;
+  animation-delay: -4s;
+}
+
+.symbol-8 {
+  left: 77%;
+  top: 12%;
+  font-size: 11px;
+  animation-delay: -6s;
+}
+
+.symbol-9 {
+  left: 42%;
+  top: 67%;
+  font-size: 28px;
+  animation-delay: -8s;
+}
+
+.symbol-10 {
+  right: 35%;
+  top: 8%;
+  font-size: 12px;
+  letter-spacing: 4px;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app {
+  position: relative;
+
+  min-height: 100vh;
+
+  width: min(1180px, 92%);
+
+  margin: auto;
+
+  padding: 75px 0 110px;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  gap: 40px;
+
+  margin-bottom: 58px;
+
+  animation:
+    heroEnter 0.8s ease both;
+}
+
+.hero-content {
+  position: relative;
+}
+
+.hero-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 7px 11px;
+
+  margin-bottom: 22px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 999px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  color: #7c8794;
+
+  font-size: 9px;
+
+  letter-spacing: 1.8px;
+
+  backdrop-filter: blur(12px);
+}
+
+.hero-badge-dot {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: #39d98a;
+
+  box-shadow:
+    0 0 10px rgba(57, 217, 138, 0.7);
+
+  animation: livePulse 2s infinite;
+}
+
+.eyebrow {
+  color: #6d7885;
+
+  font-size: 10px;
+
+  letter-spacing: 3px;
+
+  margin-bottom: 13px;
+}
+
+.hero h1 {
+  font-size: clamp(46px, 6vw, 78px);
+
+  line-height: 0.94;
+
+  letter-spacing: -4.5px;
+
+  font-weight: 700;
+
+  color: #f4f7fa;
+
+  text-shadow:
+    0 0 40px rgba(255, 255, 255, 0.035);
+}
+
+.hero h1 span {
+  background:
+    linear-gradient(
+      120deg,
+      #ffffff,
+      #9aa9ba,
+      #ffffff
+    );
+
+  background-size: 200% auto;
+
+  color: transparent;
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  animation:
+    textShimmer 7s linear infinite;
+}
+
+.hero-description {
+  max-width: 560px;
+
+  color: #6d7783;
+
+  margin-top: 22px;
+
+  font-size: 14px;
+
+  line-height: 1.75;
+}
+
+.hero-line {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  margin-top: 25px;
+}
+
+.hero-line span {
+  display: block;
+
+  height: 2px;
+
+  border-radius: 10px;
+
+  background: rgba(150, 190, 230, 0.25);
+}
+
+.hero-line span:nth-child(1) {
+  width: 38px;
+}
+
+.hero-line span:nth-child(2) {
+  width: 8px;
+  opacity: 0.5;
+}
+
+.hero-line span:nth-child(3) {
+  width: 3px;
+  opacity: 0.25;
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.system-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 9px 13px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.09);
+
+  border-radius: 999px;
+
+  color: #87919c;
+
+  font-size: 10px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
+
+  backdrop-filter: blur(18px);
+
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.18);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+
+  border-radius: 50%;
+
+  background: #36d98a;
+
+  box-shadow:
+    0 0 10px rgba(54, 217, 138, 0.7);
+
+  animation: livePulse 2s ease-in-out infinite;
+}
+
+.status-divider {
+  width: 1px;
+  height: 11px;
+
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-live {
+  color: #36d98a;
+
+  font-size: 9px;
+
+  letter-spacing: 1px;
+}
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.market-section {
+  animation:
+    contentEnter 0.9s 0.1s ease both;
+}
+
+.section-heading {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-end;
+
+  margin-bottom: 18px;
+}
+
+.section-kicker {
+  display: block;
+
+  color: #59636e;
+
+  font-size: 9px;
+
+  letter-spacing: 2px;
+
+  margin-bottom: 6px;
+}
+
+.section-heading h2 {
+  font-size: 21px;
+
+  font-weight: 600;
+
+  letter-spacing: -0.6px;
+}
+
+.market-count {
+  color: #59636e;
+
+  font-size: 9px;
+
+  letter-spacing: 1.5px;
+}
+
+/* =========================================================
+   MARKET GRID
+========================================================= */
+
+.market-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 15px;
+}
+
+/* =========================================================
+   GLASS MARKET CARD
+========================================================= */
+
+.market-card {
+  position: relative;
+
+  overflow: hidden;
+
+  text-align: left;
+
+  color: #f5f5f5;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(255, 255, 255, 0.012)
+    );
+
+  border:
+    1px solid rgba(255, 255, 255, 0.085);
+
+  border-radius: 17px;
+
+  padding: 22px;
+
+  backdrop-filter: blur(22px);
+
+  -webkit-backdrop-filter: blur(22px);
+
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.025);
+
+  transition:
+    transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.35s ease;
+
+  animation:
+    cardEnter 0.7s ease both;
+}
+
+.market-card:nth-child(2) {
+  animation-delay: 0.08s;
+}
+
+.market-card:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.market-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 70%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(160, 210, 255, 0.45),
+      transparent
+    );
+
+  animation:
+    cardScan 7s linear infinite;
+
+  pointer-events: none;
+}
+
+.market-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 120px;
+  height: 120px;
+
+  right: -70px;
+  bottom: -70px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(80, 160, 255, 0.06),
+      transparent 70%
+    );
+
+  filter: blur(15px);
+
+  pointer-events: none;
+}
+
+.market-card:hover {
+  transform:
+    translateY(-7px)
+    scale(1.008);
+
+  border-color:
+    rgba(150, 205, 255, 0.2);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.075),
+      rgba(255, 255, 255, 0.018)
+    );
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.45),
+    0 0 35px rgba(70, 150, 255, 0.035);
+}
+
+.market-card-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.market-short {
+  color: #65707c;
+
+  font-size: 10px;
+
+  letter-spacing: 1.5px;
+}
+
+.market-card h3 {
+  margin-top: 6px;
+
+  font-size: 17px;
+
+  font-weight: 600;
+}
+
+.market-connection {
+  color: #35d88b;
+
+  font-size: 9px;
+
+  letter-spacing: 0.7px;
+}
+
+.market-price {
+  font-size: 30px;
+
+  font-weight: 600;
+
+  letter-spacing: -1.2px;
+
+  margin-top: 32px;
+}
+
+.positive {
+  color: #39d98a;
+
+  text-shadow:
+    0 0 20px rgba(57, 217, 138, 0.14);
+}
+
+.negative {
+  color: #ff6262;
+
+  text-shadow:
+    0 0 20px rgba(255, 98, 98, 0.12);
+}
+
+.card-footer {
+  margin-top: 28px;
+
+  padding-top: 14px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  color: #5d6772;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   MARKET DETAIL
+========================================================= */
+
+.market-detail {
+  position: relative;
+
+  min-height: 100vh;
+}
+
+/* =========================================================
+   PRICE HEADER
+========================================================= */
+
+.price-header {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 50;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 25px;
+
+  width: 100%;
+
+  padding: 14px max(4%, calc((100% - 1080px) / 2));
+
+  background:
+    rgba(2, 3, 5, 0.72);
+
+  backdrop-filter: blur(25px);
+
+  -webkit-backdrop-filter: blur(25px);
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.back-button {
+  background: transparent;
+
+  border: 0;
+
+  color: #727d89;
+
+  font-size: 13px;
+
+  transition: 0.25s ease;
+}
+
+.back-button:hover {
+  color: white;
+
+  transform: translateX(-4px);
+}
+
+.price-market-info {
+  text-align: center;
+}
+
+.market-symbol {
+  color: #626d78;
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+}
+
+.price-market-info h1 {
+  font-size: 27px;
+
+  font-weight: 600;
+
+  letter-spacing: -1px;
+
+  margin: 4px 0;
+}
+
+/* =========================================================
+   DETAIL CONTENT
+========================================================= */
+
+.detail-content {
+  width: min(1080px, 90%);
+
+  margin: auto;
+
+  padding: 42px 0 90px;
+}
+
+/* =========================================================
+   CHARTS
+========================================================= */
+
+.charts-container {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 15px;
+}
+
+.chart-card {
+  position: relative;
+
+  overflow: hidden;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.085);
+
+  border-radius: 17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.008)
+    );
+
+  padding: 18px;
+
+  backdrop-filter: blur(20px);
+
+  -webkit-backdrop-filter: blur(20px);
+
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.34);
+
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.chart-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 1px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(140, 200, 255, 0.35),
+      transparent
+    );
+
+  animation:
+    chartGlow 5s ease-in-out infinite;
+}
+
+.chart-card:hover {
+  border-color:
+    rgba(160, 210, 255, 0.15);
+
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.45);
+}
+
+.chart-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 13px;
+}
+
+.chart-header h2,
+.chart-header h3 {
+  margin-bottom: 4px;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+.chart-header span {
+  color: #626d78;
+
+  font-size: 10px;
+}
+
+.main-chart,
+.rsi-chart {
+  width: 100%;
+}
+
+.waiting-text {
+  color: #505b66;
+
+  font-size: 11px;
+
+  margin-top: 7px;
+}
+
+.chart-legend {
+  display: flex;
+
+  gap: 18px;
+
+  color: #65707b;
+
+  font-size: 10px;
+
+  margin-top: 12px;
+}
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+.indicator-section,
+.options-section,
+.s2-box,
+.chatbot-section {
+  margin-top: 55px;
+}
+
+/* =========================================================
+   INDICATOR GRID
+========================================================= */
+
+.indicator-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.indicator-card {
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.045),
+      rgba(255, 255, 255, 0.008)
+    );
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 15px;
+
+  padding: 19px;
+
+  backdrop-filter: blur(18px);
+
+  -webkit-backdrop-filter: blur(18px);
+
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.indicator-card:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    rgba(150, 205, 255, 0.17);
+
+  box-shadow:
+    0 15px 45px rgba(0, 0, 0, 0.3);
+}
+
+.indicator-card span {
+  display: block;
+
+  color: #68737e;
+
+  font-size: 10px;
+
+  letter-spacing: 0.4px;
+}
+
+.indicator-card strong {
+  display: block;
+
+  font-size: 23px;
+
+  font-weight: 600;
+
+  margin: 13px 0 4px;
+}
+
+.indicator-card small {
+  color: #4f5964;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   INDICATOR OPTIONS
+========================================================= */
+
+.indicator-options {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.indicator-toggle {
+  padding: 9px 14px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 999px;
+
+  color: #68737e;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  transition:
+    0.25s ease;
+}
+
+.indicator-toggle:hover {
+  color: #e5e7eb;
+
+  border-color:
+    rgba(150, 205, 255, 0.18);
+
+  transform: translateY(-1px);
+}
+
+.indicator-toggle.active {
+  color: #f5f5f5;
+
+  border-color:
+    rgba(150, 205, 255, 0.22);
+
+  background:
+    rgba(120, 180, 255, 0.055);
+
+  box-shadow:
+    0 0 20px rgba(100, 170, 255, 0.035);
+}
+
+.option-note {
+  color: #505963;
+
+  margin-top: 12px;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   S² ENGINE
+========================================================= */
+
+.s2-box {
+  position: relative;
+
+  overflow: hidden;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 25px;
+
+  padding: 28px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.11);
+
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 90% 0%,
+      rgba(100, 175, 255, 0.08),
+      transparent 32%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.008)
+    );
+
+  backdrop-filter: blur(22px);
+
+  -webkit-backdrop-filter: blur(22px);
+
+  box-shadow:
+    0 20px 70px rgba(0, 0, 0, 0.4);
+}
+
+.s2-box::before {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+  height: 1px;
+
+  top: 0;
+  left: -350px;
+
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(150, 210, 255, 0.4),
+      transparent
+    );
+
+  animation:
+    s2Scan 7s linear infinite;
+}
+
+.s2-box h2 {
+  font-size: 34px;
+
+  letter-spacing: -1.5px;
+}
+
+.s2-box p {
+  color: #69747f;
+
+  margin: 8px 0;
+
+  font-size: 12px;
+}
+
+.s2-box button {
+  margin-top: 13px;
+
+  padding: 9px 16px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 999px;
+
+  color: #eee;
+
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  transition: 0.25s ease;
+}
+
+.s2-box button:hover {
+  color: #000;
+
+  background: #fff;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 30px rgba(255, 255, 255, 0.08);
+}
+
+.s2-score {
+  min-width: 115px;
+
+  text-align: center;
+}
+
+.s2-score span {
+  display: block;
+
+  color: #68737e;
+
+  font-size: 10px;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+.s2-score strong {
+  display: block;
+
+  font-size: 44px;
+
+  font-weight: 600;
+
+  margin-top: 4px;
+
+  text-shadow:
+    0 0 25px rgba(150, 210, 255, 0.12);
+}
+
+/* =========================================================
+   CHAT
+========================================================= */
+
+.chat-window {
+  min-height: 280px;
+
+  max-height: 480px;
+
+  overflow-y: auto;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.075);
+
+  border-radius: 16px;
+
+  padding: 20px;
+
+  background:
+    rgba(255, 255, 255, 0.018);
+
+  backdrop-filter: blur(20px);
+
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.chat-empty {
+  height: 230px;
+
+  display: grid;
+
+  place-items: center;
+
+  text-align: center;
+
+  color: #4e5863;
+}
+
+.chat-empty span {
+  display: block;
+
+  font-size: 34px;
+
+  margin-bottom: 8px;
+
+  animation:
+    crystalFloat 4s ease-in-out infinite;
+}
+
+.chat-message {
+  max-width: 72%;
+
+  padding: 11px 14px;
+
+  margin-bottom: 10px;
+
+  border-radius: 12px;
+
+  line-height: 1.5;
+
+  font-size: 13px;
+}
+
+.chat-message.user {
+  margin-left: auto;
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.chat-message.assistant {
+  background:
+    rgba(255, 255, 255, 0.022);
+
+  border:
+    1px solid rgba(255, 255, 255, 0.06);
+}
+
+.chat-input {
+  display: flex;
+
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.chat-input input {
+  flex: 1;
+
+  padding: 12px 14px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 12px;
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  color: white;
+
+  outline: none;
+
+  transition: 0.25s;
+}
+
+.chat-input input:focus {
+  border-color:
+    rgba(150, 205, 255, 0.22);
+
+  background:
+    rgba(255, 255, 255, 0.035);
+
+  box-shadow:
+    0 0 25px rgba(80, 160, 255, 0.035);
+}
+
+.chat-input button {
+  padding: 0 20px;
+
+  border: 0;
+
+  border-radius: 12px;
+
+  background: #f5f5f5;
+
+  color: #050505;
+
+  font-weight: 600;
+
+  transition: 0.25s ease;
+}
+
+.chat-input button:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 25px rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 100;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 20px;
+
+  background:
+    rgba(0, 0, 0, 0.78);
+
+  backdrop-filter: blur(18px);
+
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.s2-modal {
+  position: relative;
+
+  width: min(550px, 100%);
+
+  padding: 30px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(22, 26, 31, 0.94),
+      rgba(6, 8, 10, 0.96)
+    );
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.75);
+
+  animation:
+    modalEnter 0.3s ease;
+}
+
+.modal-close {
+  position: absolute;
+
+  top: 15px;
+  right: 17px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: #646d77;
+
+  font-size: 23px;
+
+  transition: 0.2s;
+}
+
+.modal-close:hover {
+  color: white;
+
+  transform: rotate(90deg);
+}
+
+.s2-modal h2 {
+  font-size: 40px;
+
+  letter-spacing: -1px;
+}
+
+.modal-score {
+  color: #8a929c;
+
+  margin: 12px 0 25px;
+}
+
+.reasons h3 {
+  margin-bottom: 12px;
+
+  font-size: 14px;
+}
+
+.reason {
+  display: flex;
+
+  gap: 9px;
+
+  padding: 11px 0;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  color: #8a929c;
+
+  font-size: 13px;
+}
+
+.reason span {
+  color: #39d98a;
+}
+
+.modal-note {
+  margin-top: 20px;
+
+  color: #505963;
+
+  font-size: 10px;
+
+  line-height: 1.6;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #020305;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #242b33;
+
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #39434d;
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes heroEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes contentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes nebulaFloat {
+  0% {
+    transform:
+      translate3d(0, 0, 0)
+      scale(1);
+  }
+
+  50% {
+    transform:
+      translate3d(35px, -25px, 0)
+      scale(1.08);
+  }
+
+  100% {
+    transform:
+      translate3d(-20px, 30px, 0)
+      scale(0.96);
+  }
+}
+
+@keyframes starDrift {
+  0% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform:
+      translate3d(30px, 20px, 0);
+  }
+
+  100% {
+    transform:
+      translate3d(60px, 40px, 0);
+  }
+}
+
+@keyframes gridMove {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+
+  to {
+    background-position:
+      0 70px,
+      70px 0;
+  }
+}
+
+@keyframes shootingStar {
+  0% {
+    opacity: 0;
+
+    transform:
+      translate3d(-100px, -40px, 0)
+      rotate(-35deg);
+  }
+
+  5% {
+    opacity: 0.7;
+  }
+
+  18% {
+    opacity: 0;
+
+    transform:
+      translate3d(350px, 170px, 0)
+      rotate(-35deg);
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes crystalMove {
+  0%,
+  100% {
+    margin-top: 0;
+
+    opacity: 0.45;
+  }
+
+  50% {
+    margin-top: -25px;
+
+    opacity: 0.75;
+  }
+}
+
+@keyframes symbolFloat {
+  0%,
+  100% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform:
+      translate3d(8px, -15px, 0);
+  }
+}
+
+@keyframes textShimmer {
+  0% {
+    background-position: 200% center;
+  }
+
+  100% {
+    background-position: -200% center;
+  }
+}
+
+@keyframes cardScan {
+  0% {
+    left: -120%;
+
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  45% {
+    left: 120%;
+
+    opacity: 0.65;
+  }
+
+  50%,
+  100% {
+    left: 120%;
+
+    opacity: 0;
+  }
+}
+
+@keyframes chartGlow {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes s2Scan {
+  0% {
+    left: -350px;
+
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 1;
+  }
+
+  50% {
+    left: 100%;
+
+    opacity: 0.6;
+  }
+
+  60%,
+  100% {
+    left: 110%;
+
+    opacity: 0;
+  }
+}
+
+@keyframes livePulse {
+  0%,
+  100% {
+    opacity: 1;
+
+    box-shadow:
+      0 0 6px rgba(54, 217, 138, 0.75);
+  }
+
+  50% {
+    opacity: 0.45;
+
+    box-shadow:
+      0 0 14px rgba(54, 217, 138, 0.3);
+  }
+}
+
+@keyframes crystalFloat {
+  0%,
+  100% {
+    transform:
+      translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform:
+      translate3d(20px, -25px, 0);
+  }
+}
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+
+    transform:
+      scale(0.96)
+      translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      scale(1)
+      translateY(0);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+  .market-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .indicator-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .hero {
+    flex-direction: column;
+  }
+
+  .price-header {
+    padding:
+      14px 5%;
+  }
+}
+
+@media (max-width: 650px) {
+  .app {
+    width: 92%;
+
+    padding-top: 45px;
+  }
+
+  .market-grid,
+  .indicator-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 47px;
+
+    letter-spacing: -2.8px;
+  }
+
+  .hero-description {
+    font-size: 13px;
+  }
+
+  .system-status {
+    margin-top: -15px;
+  }
+
+  .detail-content {
+    width: 92%;
+
+    padding-top: 30px;
+  }
+
+  .price-header {
+    position: relative;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .price-market-info {
+    text-align: left;
+  }
+
+  .s2-box {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .s2-score {
+    text-align: left;
+  }
+
+  .chat-message {
+    max-width: 88%;
+  }
+
+  .chat-input {
+    flex-direction: column;
+  }
+
+  .chat-input button {
+    height: 44px;
+  }
+
+  .crystal-2,
+  .crystal-3,
+  .crystal-5 {
+    display: none;
+  }
+
+  .market-symbol {
+    opacity: 0.5;
+  }
+}
+
+/* =========================================================
+   REDUCE MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+
+    animation-iteration-count: 1 !important;
+
+    transition-duration: 0.01ms !important;
+  }
+}
+

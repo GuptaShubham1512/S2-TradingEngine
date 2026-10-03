@@ -1,0 +1,22 @@
+{
+  "name": "s2-indicator-engine-backend",
+  "version": "1.0.0",
+  "description": "Backend for S2 Indicator Engine using Binance WebSocket, technical indicators, REST APIs and LangChain",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "@langchain/core": "^1.2.14",
+    "@langchain/google-genai": "^2.3.2",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
